@@ -1,4 +1,5 @@
 import { createAudioCapture } from "./audio/capture";
+import { stereo48kToMono16k } from "./audio/resampler";
 
 import { broadcastState } from "./server/websocket";
 import { updateMeetingState } from "./state/meetingState";

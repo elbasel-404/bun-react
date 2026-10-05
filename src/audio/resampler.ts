@@ -5,6 +5,37 @@ const INPUT_CHANNELS = 2;
 const BYTES_PER_SAMPLE = 2;
 
 const RATIO = INPUT_RATE / OUTPUT_RATE; // 3
+const INPUT_SAMPLE_RATE = 48_000;
+const OUTPUT_SAMPLE_RATE = 16_000;
+const CHANNELS = 2;
+
+export function stereo48kToMono16k(input: Buffer): Buffer {
+  const inputFrameSize = CHANNELS * BYTES_PER_SAMPLE;
+
+  const inputFrames = Math.floor(input.length / inputFrameSize);
+
+  const outputFrames = Math.floor(
+    (inputFrames * OUTPUT_SAMPLE_RATE) / INPUT_SAMPLE_RATE,
+  );
+
+  const output = Buffer.alloc(outputFrames * BYTES_PER_SAMPLE);
+
+  for (let i = 0; i < outputFrames; i++) {
+    const inputFrame = Math.floor((i * INPUT_SAMPLE_RATE) / OUTPUT_SAMPLE_RATE);
+
+    const offset = inputFrame * inputFrameSize;
+
+    const left = input.readInt16LE(offset);
+
+    const right = input.readInt16LE(offset + 2);
+
+    const mono = Math.round((left + right) / 2);
+
+    output.writeInt16LE(mono, i * BYTES_PER_SAMPLE);
+  }
+
+  return output;
+}
 
 export class Stereo48kToMono16k {
   private pending = Buffer.alloc(0);
